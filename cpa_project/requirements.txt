@@ -1,0 +1,4 @@
+Command==0.1.0
+itemadapter==0.8.0
+pandas==2.0.1
+Scrapy==2.9.0
