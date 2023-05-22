@@ -9,6 +9,9 @@ import json
 
 class App(ttk.Frame):
     def __init__(self, parent, *args, **kwargs):
+        jiji_material_values = ("All Materials", "Cements", "Paints", "Bricks", "Tiles")
+        merkato_material_values = ("Concrete Works", "Masnory Works", "Block Works", "Carpentry Joinery", "Roofing", "Metal Works", "Finishing", "Glazing", "Painting", "Electrical", "Sanitary")
+
         ttk.Frame.__init__(self, parent, *args, **kwargs)
         self.parent = parent
         self.winfo_toplevel().title("Project Scrapy")
@@ -21,17 +24,26 @@ class App(ttk.Frame):
         material_chooseCombo["values"] = ("All Materials", "Cements", "Paints", "Bricks", "Tiles")
         material_chooseCombo.grid(column=0, row=1)
         material_chooseCombo.current(0)
+        def radioFunc():
+            self.radWebSel=radWebsiteVal.get()
+            if self.radWebSel == 1: 
+                material_chooseCombo["values"]=jiji_material_values
+                material_chooseCombo.current(0)
+            elif self.radWebSel == 2:
+                material_chooseCombo["values"]=merkato_material_values
+                material_chooseCombo.current(0)
+                
+        radWebsiteVal = tk.IntVar()
+        jijiRad=tk.Radiobutton(self,text="Jiji", variable=radWebsiteVal, value=1, command=radioFunc)
+        jijiRad.grid(column=1, row=1)
 
-        self.source_website = tk.StringVar()
-        source_website_chooseCombo = ttk.Combobox(self, width=10, textvariable=self.source_website)
-        source_website_chooseCombo["values"] = ("Jiji")
-        source_website_chooseCombo.grid(column=1, row=1)
-        source_website_chooseCombo.current(0)
+        merkatoRad=tk.Radiobutton(self,text="2 Merkato", variable=radWebsiteVal, value=2, command=radioFunc)
+        merkatoRad.grid(column=2, row=1)
 
         scrape_button=ttk.Button(self, text="Scrape", command=self.scrape_func)
-        scrape_button.grid(column=2, row=1)
+        scrape_button.grid(column=3, row=1)
 
-        self.scrape_result_tbl = ttk.Treeview(self, column=("c1", "c2", "c3", "c4"), show='headings', height=10)
+        self.scrape_result_tbl = ttk.Treeview(self, column=("c1", "c2", "c3", "c4", "c5"), show='headings', height=10)
         self.scrape_result_tbl.column("# 1", anchor=CENTER)
         self.scrape_result_tbl.heading("# 1", text="Item")
         self.scrape_result_tbl.column("# 2", anchor=CENTER)
@@ -40,10 +52,16 @@ class App(ttk.Frame):
         self.scrape_result_tbl.heading("# 3", text="Description")
         self.scrape_result_tbl.column("# 4", anchor=CENTER)
         self.scrape_result_tbl.heading("# 4", text="Location")
+        self.scrape_result_tbl.column("# 5", anchor=CENTER)
+        self.scrape_result_tbl.heading("# 5", text="Date")
+
         self.scrape_result_tbl.grid(column=0, row=2, columnspan=4)
 
         genrate_csv_button = ttk.Button(self, text="Generate CSV", command=self.generate_csv_func)
         genrate_csv_button.grid(column=2, row=3)
+
+        # x=self.source_website.get()
+
 
     def generate_csv_func(self):
         """
@@ -96,8 +114,14 @@ class App(ttk.Frame):
         # before inserting items to table first lets clear it
         self.clear_scrape_tbl()
         # then insert
-        for data in scraped_data:
-            self.scrape_result_tbl.insert('', 'end', values=(data["title"].replace("\n", ""), data["price"].replace("\n", "").replace("ETB", ""), data["desc"].replace("\n", ""), data["location"]))
+        if self.radWebSel == 1:         
+            # for jiji
+            for data in scraped_data:
+                self.scrape_result_tbl.insert('', 'end', values=(data["title"].replace("\n", ""), data["price"].replace("\n", "").replace("ETB", ""), data["desc"].replace("\n", ""), data["location"], ""))
+        elif self.radWebSel == 2:
+            # for 2merkato
+            for data in scraped_data:
+                self.scrape_result_tbl.insert('', 'end', values=(data["Name"], data["Price"].replace("\n", "").replace("Br", "").replace(" ", ""), "", "", data["Date"]))
 
 def main():
     root = tk.Tk()
@@ -110,6 +134,7 @@ def main():
     help_menu.add_command(label="About", command=about_page)
     help_menu.add_command(label="Help", command=help_page)
     menu_bar.add_cascade(label="Help", menu=help_menu)
+    # menu_bar.add_cascade(lable="Settings", menu=setting_menu)
 
     con = App(root)
     # con.pack(expand=1, fill="both")
@@ -124,7 +149,7 @@ def about_page():
     about.title("About")
     about.geometry("400x200")
     about.resizable(False, False)
-    desc = Label(about, text="This project is ...blah blah blah")
+    desc = Label(about, text="This project is for computer programing and application project\n You can get the source code https://github.com/IyasuH/project \n By Eyasu Hailegebriel And \n Bereketab Tizazu")
     exit_button = ttk.Button(about, text="Exit", command=about.destroy)
     desc.pack()
     exit_button.pack()
