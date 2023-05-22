@@ -1,5 +1,33 @@
 import scrapy
 
+class AllMaterialSpider(scrapy.Spider):
+    name = "all_materials"
+    start_urls = ["https://jiji.com.et/building-materials"]
+    def parse(self, response, **kwargs):
+        for materail in response.css('div.b-list-advert__gallery__item.js-advert-list-item'):
+            yield {
+                'price':materail.css('div.qa-advert-price::text').get(),
+                'title':materail.css('div.b-advert-title-inner.qa-advert-title.b-advert-title-inner--div::text').get(),
+                'desc':materail.css('div.b-list-advert-base__description-text::text').get(),
+                # locations are not loading I think it is because they are in ::after(w/c kind of load dynamically after the created with JS)
+                'location':materail.css('span.b-list-advert__region__text::text').get()
+            }
+
+
+class CementSpider(scrapy.Spider):
+    name = "cements"
+    start_urls = ["https://jiji.com.et/building-materials?filter_attr_559_type=Cement"]
+    def parse(self, response, **kwargs):
+        for cement in response.css('div.b-list-advert__gallery__item.js-advert-list-item'):
+            yield {
+                'price':cement.css('div.qa-advert-price::text').get(),
+                'title':cement.css('div.b-advert-title-inner.qa-advert-title.b-advert-title-inner--div::text').get(),
+                'desc':cement.css('div.b-list-advert-base__description-text::text').get(),
+                # locations are not loading I think it is because they are in ::after(w/c kind of load dynamically after the created with JS)
+                'location':cement.css('span.b-list-advert__region__text::text').get()
+            }
+
+
 class TilesSpider(scrapy.Spider):
     name="tiles"
     start_urls = ["https://jiji.com.et/building-materials?filter_attr_559_type=Tiles"]
